@@ -6,24 +6,35 @@ class ListNode:
 
 class Solution:
     def deleteDuplicates(self, head: ListNode) -> ListNode:
-        if head is None or (head.next is None) or (head.next.val != head.val and head.next.next is None):
-            return head
-        if head.next.val == head.val and head.next.next is None: return None
-        node0, node1 = head, head.next
-        while node1.next is not None:
-            flag = True
-            while node1.next is not None and node1.next.val == node1.val:
-                flag = False
-                node0.next = node1.next
-                node1 = node1.next
-            if node1.next is None:
-                node0.next = None
-            else:
-                if not flag: 
-                    node0.next = node1.next
-                    node1 = node1.next
-                else:
+        if head is None: return head
+        mid = head
+        pre = ListNode(mid.val-1)
+        prehead = pre
+        pre.next = mid
+        back = mid.next
+        while back is not None:
+            while back is not None and back.val == mid.val:
+                back = back.next
+            if mid.next == back:
+                pre = mid
+            mid = back
+            if back != None: back = back.next
+            pre.next = mid
+        return prehead.next
 
-            
 
-        
+if __name__ == "__main__":
+    values = [
+        1, 1, 1, 4, 5
+    ]
+    head = ListNode(values[0])
+    p = head
+    for val in values[1:]:
+        newp = ListNode(val)
+        p.next = newp
+        p = newp
+    
+    res = Solution().deleteDuplicates(head)
+    while res is not None:
+        print(res.val,sep=" ")
+        res = res.next
