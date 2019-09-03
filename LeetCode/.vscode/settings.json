@@ -1,0 +1,6 @@
+{
+    "python.pythonPath": "D:\\miniconda\\envs\\leetcode_py36\\python.exe",
+    "python.linting.enabled": true,
+    "python.linting.flake8Enabled": false,
+    "python.linting.pylintEnabled": true
+}
