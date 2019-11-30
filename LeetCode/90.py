@@ -1,23 +1,17 @@
 class Solution:
-    result = None
-    nums = None
     result_all = None
     def subsetsWithDup(self, nums: 'List[int]') -> 'List[List[int]]':
-        self.result = []
         self.result_all = []
-        self.nums = nums
-        if len(nums) == 0: return []
-        self.do(0)
+        if not nums: return []
+        nums.sort()
+        self.do(nums, [])
         return self.result_all
     
-    def do(self, x):
-        if x > 0 and x < len(self.nums) and self.nums[x-1] == self.nums[x]: return 
-        while x < len(self.nums):
-            self.result.append(self.nums[x])
-            self.result_all.append([x for x in self.result])
-            x += 1
-            self.do(x)
-        self.result.pop()
+    def do(self, nums, result):
+        self.result_all.append(result)
+        for idx, val in enumerate(nums):
+            if idx > 0 and nums[idx] == nums[idx-1]: continue
+            self.do(nums[idx+1:], result + [val])
 
 if __name__ == "__main__":
     print(

@@ -5,37 +5,25 @@ class ListNode:
         self.next = None
 
 class Solution:
-    def reverseBetween(self, head: 'ListNode', m: 'int', n: 'int') -> 'ListNode':
-        if m == n:
-            return head
-        last = ListNode(0)
-        last.next = head
-        last0 = last
+    def reverseBetween(self, head: ListNode, m: int, n: int) -> ListNode:
+        prehead = ListNode(0)
+        prehead.next = head
         cnt = 1
-        head0 = head
+        p, prep = head, prehead
         while cnt < m:
-            cnt += 1
-            last0 = head0
-            head0 = head0.next
-        headm = head0
+            p, prep, cnt = p.next, prep.next, cnt+1
+        np, p = p, p.next
         while cnt < n:
+            pnext = p.next
+            p.next = np
+            np = p
+            p = pnext
             cnt += 1
-            head0 = head0.next
-        headn = head0
-        nextdat = headn.next
-        last0.next = headn
-        second = headm.next
-        headm.next = nextdat
-        # return last.next
-
-        last2 = headm
-        while second != headn:
-            next0 = second.next
-            second.next = last2
-            last2 = second
-            second = next0
+        prep.next.next = p
+        prep.next = np
+                    
+        return prehead.next
         
-        return last.next
 
 if __name__ == "__main__":
     arr = [
@@ -52,7 +40,7 @@ if __name__ == "__main__":
         last = head2
 
     head = Solution().reverseBetween(
-        headx, 2, 3
+        headx, 1, 5
     )
     while head is not None:
         print(head.val)
