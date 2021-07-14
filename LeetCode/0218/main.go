@@ -15,19 +15,30 @@ type Info struct {
 	idx, height, x int
 }
 
+type InfoSort []Info
+
+func (a InfoSort) Len() int      { return len(a) }
+func (a InfoSort) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a InfoSort) Less(i, j int) bool {
+	if a[i].x == a[j].x {
+		return a[i].height > a[j].height
+	}
+	return a[i].x < a[j].x
+}
+
 type InfoHeap []Info
 
 func (a InfoHeap) Len() int { return len(a) }
 func (a InfoHeap) Swap(i, j int) {
 	a[i], a[j] = a[j], a[i]
-	mapx[a[i].idx] = j
-	mapx[a[j].idx] = i
+	mapx[a[i].idx] = i
+	mapx[a[j].idx] = j
 }
 func (a InfoHeap) Less(i, j int) bool {
-	if a[i].x == a[j].x {
-		return a[i].height > a[j].height
+	if a[i].height == a[j].height {
+		return a[i].x < a[j].x
 	}
-	return a[i].x < a[j].x
+	return a[i].height > a[j].height
 }
 
 func (h *InfoHeap) Push(x interface{}) {
@@ -47,7 +58,7 @@ func (h *InfoHeap) Pop() interface{} {
 
 func getSkyline(buildings [][]int) [][]int {
 	mapx = make(map[int]int)
-	infoList := InfoHeap{}
+	infoList := InfoSort{}
 	infoHeap := &InfoHeap{}
 	heap.Init(infoHeap)
 	for k, v := range buildings {
@@ -70,12 +81,19 @@ func getSkyline(buildings [][]int) [][]int {
 			}
 		} else {
 			headId := mapx[info.idx]
-			fmt.Println(headId)
+			lastHeapId := (*infoHeap)[0].idx
 			heap.Remove(infoHeap, headId)
-			if (*infoHeap)[0].height > ans[len(ans)-1][1] {
-				tmp := []int{(*infoHeap)[0].x, (*infoHeap)[0].height}
+			if (*infoHeap).Len() > 0 {
+				idx := (*infoHeap)[0].idx
+				if idx != lastHeapId && buildings[idx][2] != buildings[lastHeapId][2] {
+					tmp := []int{info.x, (*infoHeap)[0].height}
+					ans = append(ans, tmp)
+				}
+			}else{
+				tmp := []int{info.x,0}
 				ans = append(ans, tmp)
 			}
+			
 		}
 	}
 	return ans
