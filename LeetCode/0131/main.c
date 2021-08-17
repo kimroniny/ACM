@@ -7,72 +7,63 @@
 /**
  * Return an array of arrays of size *returnSize.
  * The sizes of the arrays are returned as *returnColumnSizes array.
- * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ * Note: Both returned array and *columnSizes array must be calloced, assume caller calls free().
  */
-char *** ans = NULL;
-char *s0 = NULL, *sr = NULL;
-char **p = NULL;
-int l;
 
-void dfs(int x) {
+
+void dfs(int x, int l, int pLen, int *returnSize, int *returnColumnSizes, char ***ans, char **p, char *s0, char *sr) {
     if (x >= l) {
-        int k = sizeof(ans)/sizeof(char*);
-        ans = (char ***)realloc(ans, sizeof(char*)+sizeof(ans));
-        printf("ans.length=%d\n", sizeof(ans)/sizeof(char *));
-        char ** pp = (char **)malloc(sizeof(p));
-        int lp = sizeof(p)/sizeof(char *);
-        printf("p.length=%d\n", lp);
+        ++(*returnSize);
+        char ** pp = (char **)malloc(sizeof(char*)*pLen);
         int i;
-        for (i = 0; i < lp; i++)  {
+        for (i = 0; i < pLen; i++)  {
             int ls = strlen(*(p+i));
-            printf("ls=%d, p+i=%s\n", ls, *(p+i));
-            char *s = (char *)malloc(sizeof(char) * (ls+1));
-            s[ls] = '\0';
-            strcpy(s, *(p+i));
-
-            pp[i] = s;
-            printf("s=%s\n", s);
-            printf("pp[%d]=%s\n", i, pp[i]);
+            pp[i] = (char *)malloc(sizeof(char)*(ls+1));
+            strcpy(pp[i], *(p+i));
         }
-        
-        ans[k-1] = pp;
+        ans[(*returnSize)-1] = pp;
+        returnColumnSizes[(*returnSize)-1] = pLen;
         return;
     }
     int i;
     for (i = x; i < l; i++) {
-        if (!strncmp(s0+x, sr+l-1-i, i-x+1)) {
-            int lp = sizeof(p)/sizeof(char*);
-            printf("lp=%d\nsizeof(p)=%d\n", lp, sizeof(p));
-            p = (char **)realloc(p, sizeof(p)+sizeof(char *));
-            p[lp] = (char *)malloc(sizeof(char)*(i-x+2));
-            p[lp][i-x+1] = '\0';
-            strncpy(p[lp], s0+x, i-x+1);
-            printf("p[lp]=%s\n", p[lp]);
-            dfs(i+1);
-            free(p+sizeof(p)/sizeof(char *)-1);
+        if (!strncmp(s0+x, sr+l-1-i, i-x+1)) {            
+            p[pLen] = (char *)malloc(sizeof(char)*(i-x+2));
+            p[pLen][i-x+1] = '\0';
+            strncpy(p[pLen], s0+x, i-x+1);
+            dfs(i+1, l, pLen+1, returnSize, returnColumnSizes, ans, p, s0, sr);
         }
     }
 }
 
 char *** partition(char * s, int* returnSize, int** returnColumnSizes){
-    l = strlen(s);
+    int l = strlen(s);
+    int MAXLEN = l * (1 << l);
+    char *** ans = (char ***)malloc(sizeof(char **)*MAXLEN);
+    char *s0 = NULL, *sr = NULL;
+    char **p = (char **)malloc(sizeof(char*)*l);
     s0 = s;
     sr = (char *)malloc(sizeof(char)*(l+1)); sr[l] = '\0';
     int i;
     for (i = 0; i < l; i++) sr[i] = s[l-1-i];
-    dfs(0);
-}
-
-void main(void) {
-    char *s = "aab";
-    int * returnSize = NULL;
-    int ** returnColumnSizes = NULL;
-    partition(s, returnSize, returnColumnSizes);
-    int i, j;
-    for (i = 0; i < sizeof(ans)/sizeof(char *); i++) {
-        for (j = 0; j < sizeof(ans[i])/sizeof(char *); i++) {
+    int pLen = 0;
+    *returnSize = 0;
+    *returnColumnSizes = (int *)malloc(sizeof(int)*MAXLEN);
+    
+    dfs(0, l, pLen, returnSize, *returnColumnSizes, ans, p, s0, sr);
+    for (int i = 0; i < *returnSize; i++) {
+        for (int j = 0; j < (*returnColumnSizes)[i]; j++) {
             printf("%s ", ans[i][j]);
         }
         printf("\n");
     }
+    return ans;
+}
+
+void main(void) {
+    
+    char *s = "aab";
+    int * returnSize = (int *)malloc(sizeof(int));
+    int ** returnColumnSizes = (int **)malloc(sizeof(int*));
+    partition(s, returnSize, returnColumnSizes);    
 }
